@@ -43,14 +43,14 @@ def getMain(c_out):
 def getFunc(addr):
 	esasy = ""
 	gecir = 0
-	print("getFunc addr = ",addr.__str__())
+	#print("getFunc addr = ",addr.__str__())
 	for line in c_out.splitlines():
 		if addr in line :
 			gecir =1
 		if gecir == 1 :
 			esasy += line + '\n'
 			if "ret" in line or "nop" in line:
-				print(esasy)
+				#print(esasy)
 				return esasy
 	
 
@@ -80,7 +80,6 @@ def adrestap(addr):
 	
 # Returns function name from a string, function name between brackets "<>"	 
 def funcAdytap(setir):
-	print(setir)
 	gecir = 0
 	iber =""
 	for harp in setir.__str__():
@@ -104,11 +103,11 @@ def parse(progr):
 			gitmeli_addr = cmd.split('\t')[0:1]
 			san16 = addrtohex(gitmeli_addr)
 			PrC = hex(int(PrC.__str__(),16)+san16-offsetNo)
-			print("New PrC = ",int(PrC,16),"san16=",san16,cmd)
+			#print("New PrC = ",int(PrC,16),"san16=",san16,cmd)
 			func_ady=funcAdytap(cmd.split('\t')[3:4])
-			print("funk ady =",func_ady)
+			#print("funk ady =",func_ady)
 			spisok.append(func_ady)
-			print(spisok)
+			#print(spisok)
 
 			if PrC not in h :
 				h[PrC] = spisok.__str__()
@@ -117,19 +116,15 @@ def parse(progr):
 			parse(taze_func)
 			spisok.pop()
 			PrC = hex(int(PrC.__str__(),16)-san16+offsetNo)
-			print("Returned parse1 PrC = ",PrC)	
+			#print("Returned parse1 PrC = ",PrC)	
 
 
 # Getting offset after executing readelf -l binary_prog 
 def getOffset(bin_file):
 	islet = Popen(["readelf",'-l',str(bin_file)],stdout=PIPE).communicate()[0]
-	#print(islet)
 	for cmd in islet.splitlines():
 		if "LOAD" in cmd:
-			print(cmd)
 			iber = cmd.split(' ')[14:15]
-			print(iber)
-			print("Decimal = ",addrtohex(iber))
 			return addrtohex(iber)-4 
 			
 			 
@@ -143,11 +138,12 @@ if __name__ == '__main__':
 		#Execute subroutine to get objdump results 
 		c_out = Popen(["toolchain/bin/riscv64-unknown-linux-gnu-objdump",'-d',str(sys.argv[1])],stdout=PIPE).communicate()[0] 
 		offsetNo = getOffset(sys.argv[1])
-		print("Offset No = ", offsetNo)
+		print("Offset No = {} \n".format(hex(offsetNo+4)))
 		_main = getMain(c_out)
 		parse(_main)
 	
 	except Exception as e:
 		print('Error:',e)
+	print("Listing PrC values and corresponding function chain :")
 	for key,value in h.items() :
-		print("{}, {}".format(key,value))
+		print("PrC={}, {}".format(key,value))
